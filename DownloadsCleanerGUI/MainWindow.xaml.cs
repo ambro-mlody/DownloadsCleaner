@@ -20,9 +20,30 @@ namespace DownloadsCleanerGUI
     /// </summary>
     public partial class MainWindow : Window
     {
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void FileNameColumn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DateColumn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void TypeColumn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SizeColumn_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
