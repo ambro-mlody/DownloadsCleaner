@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DownloadsFolder.cs" />
+    <Compile Include="FilesDeleter.cs" />
     <Compile Include="FileSorter.cs" />
     <Compile Include="FolderIcon.cs" />
     <Compile Include="MyFile.cs" />

@@ -28,6 +28,31 @@ namespace DownloadsCleanerGUI
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private double totalSize;
+
+        public double TotalSize
+        {
+            get { return totalSize; }
+            set 
+            { 
+                totalSize = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int filesCount;
+
+        public int FilesCount
+        {
+            get { return filesCount; }
+            set 
+            { 
+                filesCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         private ObservableCollection<MyFile> files = new ObservableCollection<MyFile>();
         public ObservableCollection<MyFile> Files 
         { 
@@ -44,6 +69,7 @@ namespace DownloadsCleanerGUI
 
         public MainWindow()
         {
+            TotalSize = 0;
             GetFiles();
             InitializeComponent();
         }
@@ -51,16 +77,21 @@ namespace DownloadsCleanerGUI
         private void GetFiles()
         {
             downloadsInfo = new DirectoryInfo(path);
-            var dirs = downloadsInfo.GetDirectories();
-            foreach (var dir in dirs)
-            {
-                Files.Add(new MyFile(dir));
-            }
             var files1 = downloadsInfo.GetFiles();
             foreach (var file in files1)
             {
                 Files.Add(new MyFile(file));
             }
+            var dirs = downloadsInfo.GetDirectories();
+            foreach (var dir in dirs)
+            {
+                Files.Add(new MyFile(dir));
+            }
+            foreach (var file in Files)
+            {
+                TotalSize += file.Size;
+            }
+            FilesCount = Files.Count;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -139,10 +170,122 @@ namespace DownloadsCleanerGUI
                 {
                     Directory.Delete(item.Path, true);
                 }
-                
+                TotalSize -= item.Size;
                 Files.Remove(item);
             }
 
+        }
+
+        private async void AdvancedDelete1Button_Click(object sender, RoutedEventArgs e)
+        {
+            
+            if (OldestRB.IsChecked.HasValue)
+            {
+                if (OldestRB.IsChecked.Value)
+                {
+                    var f = await FileSorter.SortByDate(files, SortOrder.Descending);
+                    RemoveFromList(f);
+                    return;
+                }
+            }
+
+            if (BiggestRB.IsChecked.HasValue)
+            {
+                if (BiggestRB.IsChecked.Value)
+                {
+                    var f = await FileSorter.SortBySize(files, SortOrder.Descending);
+                    RemoveFromList(f);
+                }
+            }
+        }
+
+        private async void RemoveFromList(ObservableCollection<MyFile> f)
+        {
+            double sizeDeleted;
+            List<MyFile> toDelete = new List<MyFile>();
+            for (int i = 0; i < FilesNumberSB.Value.Value; i++)
+            {
+                toDelete.Add(f.ElementAt(i));
+                Files.Remove(f.ElementAt(i));
+            }
+            sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
+            TotalSize -= sizeDeleted;
+        }
+
+        private async void RemoveFromList(ObservableCollection<MyFile> f, DateTime date)
+        {
+            double sizeDeleted;
+            List<MyFile> toDelete = new List<MyFile>();
+            foreach (var file in f)
+            {
+                if (file.DateModified < date)
+                {
+                    toDelete.Add(file);
+                    Files.Remove(file);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
+            TotalSize -= sizeDeleted;
+        }
+
+        private async void RemoveFromList(ObservableCollection<MyFile> f, double size)
+        {
+            double sizeDeleted;
+            List<MyFile> toDelete = new List<MyFile>();
+            foreach (var file in f)
+            {
+                if (file.Size > size)
+                {
+                    toDelete.Add(file);
+                    Files.Remove(file);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
+            TotalSize -= sizeDeleted;
+        }
+
+        private void DeleteDP_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            OlderThanRB.IsChecked = true;
+        }
+
+        private async void AdvancedDelete2Button_Click(object sender, RoutedEventArgs e)
+        {
+            if(OlderThanRB.IsChecked.HasValue)
+            {
+                if(OlderThanRB.IsChecked.Value)
+                {
+                    if(DeleteDP.SelectedDate.HasValue)
+                    {
+                        var f = await FileSorter.SortByDate(files, SortOrder.Descending);
+                        RemoveFromList(f, DeleteDP.SelectedDate.Value);
+                        return;
+                    }
+                }
+            }
+
+            if (BiggerThanRB.IsChecked.HasValue)
+            {
+                if (BiggerThanRB.IsChecked.Value)
+                {
+                    var f = await FileSorter.SortBySize(files, SortOrder.Descending);
+                    RemoveFromList(f, BiggerThanSB.Value.Value);
+                    return;
+                }
+            }
+        }
+
+        private void BiggerThanSB_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            BiggerThanRB.IsChecked = true;
         }
     }
 }

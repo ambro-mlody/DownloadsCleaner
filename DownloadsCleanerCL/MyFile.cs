@@ -17,7 +17,7 @@ namespace DownloadsCleanerCL
         public ImageSource IconDisp { get; set; }
         public string Name { get; set; }
         public DateTime DateModified { get; set; }
-        public long Size { get; set; }
+        public double Size { get; set; }
         public string Path { get; set; }
         public bool File { get; set; }
 
@@ -30,7 +30,7 @@ namespace DownloadsCleanerCL
         {
             Name = file.Name;
             DateModified = file.CreationTime;
-            Size = file.Length;
+            Size = file.Length / 1024.0;
             Icon icon = Icon.ExtractAssociatedIcon(file.FullName);
             IconDisp = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
             Path = file.FullName;
@@ -42,7 +42,7 @@ namespace DownloadsCleanerCL
             Name = dir.Name;
             DateModified = dir.CreationTime;
             IconDisp = FolderIcon.GetIcon();
-            Size = GetDirSize(dir);
+            Size = GetDirSize(dir) / 1024.0;
             Path = dir.FullName;
             File = false;
         }
