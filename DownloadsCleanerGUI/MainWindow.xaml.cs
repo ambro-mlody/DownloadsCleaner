@@ -91,6 +91,7 @@ namespace DownloadsCleanerGUI
             {
                 TotalSize += file.Size;
             }
+            TotalSize /= 1024.0;
             FilesCount = Files.Count;
         }
 
@@ -170,7 +171,7 @@ namespace DownloadsCleanerGUI
                 {
                     Directory.Delete(item.Path, true);
                 }
-                TotalSize -= item.Size;
+                TotalSize -= item.Size / 1024.0;
                 Files.Remove(item);
             }
 
@@ -183,7 +184,7 @@ namespace DownloadsCleanerGUI
             {
                 if (OldestRB.IsChecked.Value)
                 {
-                    var f = await FileSorter.SortByDate(files, SortOrder.Descending);
+                    var f = await FileSorter.SortByDate(files, SortOrder.Ascending);
                     RemoveFromList(f);
                     return;
                 }
@@ -209,7 +210,7 @@ namespace DownloadsCleanerGUI
                 Files.Remove(f.ElementAt(i));
             }
             sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
-            TotalSize -= sizeDeleted;
+            TotalSize -= sizeDeleted / 1024.0;
         }
 
         private async void RemoveFromList(ObservableCollection<MyFile> f, DateTime date)
@@ -229,7 +230,7 @@ namespace DownloadsCleanerGUI
                 }
             }
             sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
-            TotalSize -= sizeDeleted;
+            TotalSize -= sizeDeleted / 1024.0;
         }
 
         private async void RemoveFromList(ObservableCollection<MyFile> f, double size)
@@ -249,7 +250,7 @@ namespace DownloadsCleanerGUI
                 }
             }
             sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
-            TotalSize -= sizeDeleted;
+            TotalSize -= sizeDeleted / 1024.0;
         }
 
         private void DeleteDP_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -265,7 +266,7 @@ namespace DownloadsCleanerGUI
                 {
                     if(DeleteDP.SelectedDate.HasValue)
                     {
-                        var f = await FileSorter.SortByDate(files, SortOrder.Descending);
+                        var f = await FileSorter.SortByDate(files, SortOrder.Ascending);
                         RemoveFromList(f, DeleteDP.SelectedDate.Value);
                         return;
                     }
@@ -281,6 +282,11 @@ namespace DownloadsCleanerGUI
                     return;
                 }
             }
+        }
+
+        private void SB_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            (((sender as Xceed.Wpf.Toolkit.IntegerUpDown).Parent as StackPanel).Parent as RadioButton).IsChecked = true;
         }
 
         private void BiggerThanSB_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)

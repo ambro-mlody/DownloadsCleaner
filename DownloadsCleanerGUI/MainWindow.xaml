@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:DownloadsCleanerGUI"
         xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Name="mainWindow" x:Class="DownloadsCleanerGUI.MainWindow"
         mc:Ignorable="d"
-        Title="Downloads Cleaner" Height="650" Width="1150" Background="#FF1F1F1F" Foreground="White">
+        Title="Downloads Cleaner" Height="660" Width="1140" Background="#FF1F1F1F" Foreground="White" FontFamily="Yu Gothic">
     <Window.Resources>
         <LinearGradientBrush x:Key="GridViewColumnHeaderBackground" EndPoint="0,1" StartPoint="0,0">
             <GradientStop Color="#FFFFFFFF" Offset="0"/>
@@ -201,8 +201,8 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="10"/>
 
         </Grid.ColumnDefinitions>
@@ -293,7 +293,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Total Size: " FontSize="16" x:Name="TotalSizeTB"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalSize, ElementName=mainWindow, StringFormat=0.## KB}" FontSize="16" x:Name="TotalSizeTB1" HorizontalAlignment="Right" Margin="0,0,5,0"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalSize, ElementName=mainWindow, StringFormat=0.## MB}" FontSize="16" x:Name="TotalSizeTB1" HorizontalAlignment="Right" Margin="0,0,5,0"/>
             <Grid Margin="0, 20, 0, 0"  Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -304,7 +304,7 @@
                 <xctk:IntegerUpDown Value="0" Grid.Column="1" Margin="10,0,0,0" Name="FilesNumberSB" Minimum="0" Maximum="{Binding FilesCount, ElementName=mainWindow}" />
                 <TextBlock Text="files: " FontSize="16" Foreground="White" Grid.Column="2" Margin="5,0,0,0"/>
             </Grid>
-            <Border Grid.Row="2" Grid.Column="0" Margin="0, 5, 5, 0" BorderBrush="#FF8B8B8B" BorderThickness="1">
+            <Border Grid.Row="2" Grid.Column="0" Margin="0, 5, 5, 5" BorderBrush="#FF8B8B8B" BorderThickness="1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -321,7 +321,7 @@
             </Border>
 
             <TextBlock Text="Delete all files:" FontSize="16" Foreground="White" Grid.Column="1" Margin="5, 20, 0, 0"  Grid.Row="1"/>
-            <Border Grid.Row="2" Grid.Column="1" Margin="5, 5, 0, 0" BorderBrush="#FF8B8B8B" BorderThickness="1">
+            <Border Grid.Row="2" Grid.Column="1" Margin="5, 5, 0, 5" BorderBrush="#FF8B8B8B" BorderThickness="1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -333,36 +333,112 @@
                     </Grid.RowDefinitions>
                     <RadioButton x:Name="OlderThanRB" GroupName="AdvanceDelete2" IsChecked="False" Foreground="White" FontSize="14" VerticalContentAlignment="Center" Margin="5" Grid.Row="0" Grid.Column="0">
                         <RadioButton.Content>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Older Than: "/>
-                                <DatePicker IsTodayHighlighted="True" Name="DeleteDP"  Grid.Column="1" FontSize="12" FirstDayOfWeek="Monday" SelectedDateChanged="DeleteDP_SelectedDateChanged"/>
-                            </Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Older Than: "/>
+                                <DatePicker IsTodayHighlighted="True" Name="DeleteDP" FontSize="12" FirstDayOfWeek="Monday" SelectedDateChanged="DeleteDP_SelectedDateChanged"/>
+                            </StackPanel>
                         </RadioButton.Content>
                     </RadioButton>
                     <RadioButton x:Name="BiggerThanRB"  GroupName="AdvanceDelete2" IsChecked="False" Foreground="White" FontSize="14" VerticalContentAlignment="Center" Margin="5" Grid.Row="1" Grid.Column="0">
                         <RadioButton.Content>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Bigger Than: "/>
-                                <xctk:IntegerUpDown Value="0" Grid.Column="1" Margin="10,0,0,0" Name="BiggerThanSB" Minimum="0" ValueChanged="BiggerThanSB_ValueChanged" />
-                                <TextBlock Grid.Column="2" Text=" KB"/>
-                            </Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Bigger Than: "/>
+                                <xctk:IntegerUpDown Value="0" Margin="10,0,0,0" Name="BiggerThanSB" Minimum="0" ValueChanged="SB_ValueChanged" />
+                                <TextBlock Text=" KB"/>
+                            </StackPanel>
                         </RadioButton.Content>
                     </RadioButton>
                     <Button x:Name="AdvancedDelete2Button" Content="Delete" Grid.RowSpan="2" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" Width="60" Height="30" Click="AdvancedDelete2Button_Click"/>
                 </Grid>
             </Border>
-            
-        </Grid>
-        
 
+        </Grid>
+        <Grid Grid.Row="2" Grid.Column="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Service Management" HorizontalAlignment="Center" FontSize="22" Foreground="White" />
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <RadioButton x:Name="SetIntervalRB" GroupName="MainServiceRBs" Grid.Column="0" Foreground="White" FontSize="16" Margin="10, 10, 0, 0" VerticalContentAlignment="Center">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Delete every "/>
+                            <xctk:IntegerUpDown x:Name="SetIntervalSB" Value="30" Height="25" Minimum="0" ValueChanged="SB_ValueChanged"/>
+                            <TextBlock Text=" days." />
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                <RadioButton x:Name="SetLimitRB" GroupName="MainServiceRBs" Grid.Column="1" Foreground="White" FontSize="16" Margin="0,10,0,0" VerticalContentAlignment="Center">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Delete after exceeding "/>
+                            <xctk:IntegerUpDown x:Name="SetLimitSB" Value="4096" Minimum="0" Height="25" ValueChanged="SB_ValueChanged" />
+                            <TextBlock Text=" MB" />
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+            </Grid>
+            <Grid Grid.Row="2" Margin="25, 20, 0, 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <RadioButton x:Name="OldestServiceRB" GroupName="ServiceMenuRBs" Grid.Row="0" Foreground="White" VerticalContentAlignment="Center" FontSize="14">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <xctk:IntegerUpDown x:Name="OldestServiceSB" Value="0" Minimum="0" ValueChanged="SB_ValueChanged"/>
+                            <TextBlock Text=" oldest files." />
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                <RadioButton x:Name="BiggestServiceRB" GroupName="ServiceMenuRBs" Grid.Row="1" Foreground="White" VerticalContentAlignment="Center" FontSize="14" Margin="0, 10, 0, 0">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <xctk:IntegerUpDown x:Name="BiggestServiceSB" Value="0" Minimum="0" ValueChanged="SB_ValueChanged"/>
+                            <TextBlock Text=" biggest files." />
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                <RadioButton x:Name="OlderThanServiceRB" GroupName="ServiceMenuRBs" Grid.Row="2" Foreground="White" VerticalContentAlignment="Center" FontSize="14" Margin="0, 10, 0, 0">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Older than "/>
+                            <xctk:IntegerUpDown x:Name="OlderThanServiceSB" Value="30" Minimum="0" ValueChanged="SB_ValueChanged" />
+                            <TextBlock Text=" days." />
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                <RadioButton x:Name="BiggerThanServiceRB" GroupName="ServiceMenuRBs" Grid.Row="3" Foreground="White" VerticalContentAlignment="Center" FontSize="14" Margin="0, 10, 0, 0">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Bigger than "/>
+                            <xctk:IntegerUpDown x:Name="BiggerThanServiceSB" Value="4194304" Minimum="0" ValueChanged="SB_ValueChanged" />
+                            <TextBlock Text=" KB" />
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                <Button x:Name="ConfirmServiceButton" Content="Confirm Settings" Grid.Column="0" Width="120" Height="40" Grid.Row="4" Margin="0, 25, 0, 0"/>
+            </Grid>
+            <Grid Grid.Row="3" Margin="0, 40, 0, 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="StartServiceButton" Content="Start Service" Grid.Column="0" Width="120" Height="40" />
+                <Button x:Name="StopServiceButton" Content="Stop Service" Grid.Column="1" Width="120" Height="40"/>
+            </Grid>
+            <TextBlock Grid.Row="4" Text="Service is currently stoped." Name="ServiceInfoTB" FontSize="16" Foreground="White" Margin="10, 10"/>
+        </Grid>
     </Grid>
 </Window>
