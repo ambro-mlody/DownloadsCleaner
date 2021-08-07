@@ -1,7 +1,7 @@
 ﻿
 namespace DownloadsCleanerService
 {
-    partial class Service1
+    partial class DownloadsCleanerService
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,10 +29,15 @@ namespace DownloadsCleanerService
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            this.ServiceName = "Service1";
+            // 
+            // DownloadsCleanerService
+            // 
+            this.ServiceName = "DownloadsCleanerService";
+
         }
 
         #endregion
+
+        
     }
 }

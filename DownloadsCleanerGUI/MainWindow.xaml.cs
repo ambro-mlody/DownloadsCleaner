@@ -18,6 +18,7 @@ using DownloadsCleanerCL;
 using System.Drawing;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.ServiceProcess;
 
 namespace DownloadsCleanerGUI
 {
@@ -67,11 +68,29 @@ namespace DownloadsCleanerGUI
         private DirectoryInfo downloadsInfo;
         private SortOrder order = SortOrder.Ascending;
 
+        private ServiceController serviceController;
+
         public MainWindow()
         {
             TotalSize = 0;
             GetFiles();
             InitializeComponent();
+            GetSettings();
+            InitServiceController();
+        }
+
+        private void InitServiceController()
+        {
+            ServiceController[] serviceControllers;
+            serviceControllers = ServiceController.GetServices();
+            foreach (var sc in serviceControllers)
+            {
+                if(sc.ServiceName == "DownloadsCleanerService")
+                {
+                    serviceController = new ServiceController("DownloadsCleanerService");
+                    return;
+                }
+            }
         }
 
         private void GetFiles()
@@ -289,9 +308,118 @@ namespace DownloadsCleanerGUI
             (((sender as Xceed.Wpf.Toolkit.IntegerUpDown).Parent as StackPanel).Parent as RadioButton).IsChecked = true;
         }
 
-        private void BiggerThanSB_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private ConfigManager configManager = new ConfigManager();
+
+        private void GetSettings()
         {
-            BiggerThanRB.IsChecked = true;
+            configManager.GetSettings();
+            switch (configManager.MainSettings)
+            {
+                case ServiceMainSettings.Interval:
+                    SetIntervalRB.IsChecked = true;
+                    SetIntervalSB.Value = configManager.Days;
+                    break;
+                case ServiceMainSettings.Limit:
+                    SetLimitRB.IsChecked = true;
+                    SetLimitSB.Value = configManager.Limit;
+                    break;
+                default:
+                    break;
+            }
+
+            switch (configManager.ServiceSettings)
+            {
+                case ServiceSettings.Oldest:
+                    OldestServiceRB.IsChecked = true;
+                    OldestServiceSB.Value = configManager.Files;
+                    break;
+                case ServiceSettings.Biggest:
+                    BiggestServiceRB.IsChecked = true;
+                    BiggestServiceSB.Value = configManager.Files;
+                    break;
+                case ServiceSettings.OlderThan:
+                    OlderThanServiceRB.IsChecked = true;
+                    OlderThanServiceSB.Value = configManager.OlderThan;
+                    break;
+                case ServiceSettings.BiggerThan:
+                    BiggerThanServiceRB.IsChecked = true;
+                    BiggerThanServiceSB.Value = configManager.Size;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private async void ConfirmServiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            string[] args = new string[4];
+
+            if (SetIntervalRB.IsChecked.Value)
+            {
+                configManager.MainSettings = ServiceMainSettings.Interval;
+                configManager.Days = SetIntervalSB.Value.Value;
+                args[1] = configManager.Days.ToString();
+            }
+            else
+            {
+                configManager.MainSettings = ServiceMainSettings.Limit;
+                configManager.Limit = SetLimitSB.Value.Value;
+                args[1] = configManager.Limit.ToString();
+            }
+
+            if (OldestServiceRB.IsChecked.Value)
+            {
+                configManager.ServiceSettings = ServiceSettings.Oldest;
+                configManager.Files = OldestServiceSB.Value.Value;
+                args[3] = configManager.Files.ToString();
+            }
+            else if (BiggestServiceRB.IsChecked.Value)
+            {
+                configManager.ServiceSettings = ServiceSettings.Biggest;
+                configManager.Files = BiggestServiceSB.Value.Value;
+                args[3] = configManager.Files.ToString();
+            }
+            else if (OlderThanServiceRB.IsChecked.Value)
+            {
+                configManager.ServiceSettings = ServiceSettings.OlderThan;
+                configManager.OlderThan = OlderThanServiceSB.Value.Value;
+                args[3] = configManager.OlderThan.ToString();
+            }
+            else
+            {
+                configManager.ServiceSettings = ServiceSettings.BiggerThan;
+                configManager.Size = BiggerThanServiceSB.Value.Value;
+                args[3] = configManager.Size.ToString();
+            }
+
+            await configManager.SetSettingsAsync();
+
+            args[0] = configManager.MainSettings.ToString();
+            args[2] = configManager.ServiceSettings.ToString();
+
+            if(serviceController.Status == ServiceControllerStatus.Running)
+            {
+                serviceController.Stop();
+                serviceController.Start(args);
+            }
+        }
+
+        private void StartServiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            serviceController.Refresh();
+            if(serviceController.Status == ServiceControllerStatus.Stopped)
+            {
+                serviceController.Start();
+            }
+        }
+
+        private void StopServiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            serviceController.Refresh();
+            if (serviceController.Status == ServiceControllerStatus.Running)
+            {
+                serviceController.Stop();
+            }
         }
     }
 }

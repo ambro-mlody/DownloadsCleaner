@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using DownloadsCleanerCL;
 
 namespace DownloadsCleanerService
 {
@@ -17,7 +18,7 @@ namespace DownloadsCleanerService
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
             {
-                new Service1()
+                new DownloadsCleanerService()
             };
             ServiceBase.Run(ServicesToRun);
         }
