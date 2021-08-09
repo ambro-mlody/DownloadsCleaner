@@ -10,7 +10,7 @@ namespace DownloadsCleanerCL
 {
     public static class FilesDeleter
     {
-        public static async Task<double> DelteFilesAndDirectoriesAsync(IEnumerable<MyFile> files)
+        public static Task<double> DelteFilesAndDirectoriesAsync(IEnumerable<MyFile> files)
         {
             double sizeDeleted = 0;
             foreach (MyFile file in files)
@@ -25,7 +25,7 @@ namespace DownloadsCleanerCL
                     Directory.Delete(file.Path, true);
                 }
             }
-            return sizeDeleted;
+            return Task.FromResult(sizeDeleted);
         }
     }
 }

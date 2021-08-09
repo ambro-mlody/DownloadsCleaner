@@ -15,7 +15,7 @@ namespace DownloadsCleanerCL
 
     public static class FileSorter
     {
-        public static async Task<ObservableCollection<MyFile>> SortByName(ObservableCollection<MyFile> files, SortOrder order)
+        public static Task<IEnumerable<MyFile>> SortByNameAsync(IEnumerable<MyFile> files, SortOrder order)
         {
             switch (order)
             {
@@ -28,10 +28,10 @@ namespace DownloadsCleanerCL
                 default:
                     break;
             }
-            return files;
+            return Task.FromResult(files);
         }
         
-        public static async Task<ObservableCollection<MyFile>> SortBySize(ObservableCollection<MyFile> files, SortOrder order)
+        public static Task<IEnumerable<MyFile>> SortBySizeAsync(IEnumerable<MyFile> files, SortOrder order)
         {
             switch (order)
             {
@@ -44,10 +44,10 @@ namespace DownloadsCleanerCL
                 default:
                     break;
             }
-            return files;
+            return Task.FromResult(files);
         }
         
-        public static async Task<ObservableCollection<MyFile>> SortByDate(ObservableCollection<MyFile> files, SortOrder order)
+        public static Task<IEnumerable<MyFile>> SortByDateAsync(IEnumerable<MyFile> files, SortOrder order)
         {
             switch (order)
             {
@@ -60,7 +60,7 @@ namespace DownloadsCleanerCL
                 default:
                     break;
             }
-            return files;
+            return Task.FromResult(files);
         }
     }
 }

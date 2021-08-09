@@ -14,7 +14,7 @@ namespace DownloadsCleanerCL
         public static string getPath()
         {
             // 0x00004000 - dont verify
-            /*int result = SHGetKnownFolderPath(new Guid(downloadsGuid), (uint)0x00004000, new IntPtr(0), out IntPtr outPath);
+            int result = SHGetKnownFolderPath(new Guid(downloadsGuid), (uint)0x00004000, new IntPtr(0), out IntPtr outPath);
             if(result >= 0)
             {
                 string path = Marshal.PtrToStringUni(outPath);
@@ -24,9 +24,9 @@ namespace DownloadsCleanerCL
             else
             {
                 throw new ExternalException("Unable to retrive downloads folder on this system.", result);
-            }*/
+            }
 
-            return @"C:\Users\Tomek\Desktop\temp";
+            //return @"C:\Users\Tomek\Desktop\temp";
         }
 
         [DllImport("Shell32.dll")]

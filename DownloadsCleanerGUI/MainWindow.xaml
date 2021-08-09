@@ -438,7 +438,7 @@
                 <Button x:Name="StartServiceButton" Content="Start Service" Grid.Column="0" Width="120" Height="40" Click="StartServiceButton_Click" />
                 <Button x:Name="StopServiceButton" Content="Stop Service" Grid.Column="1" Width="120" Height="40" Click="StopServiceButton_Click"/>
             </Grid>
-            <TextBlock Grid.Row="4" Text="Service is currently stoped." Name="ServiceInfoTB" FontSize="16" Foreground="White" Margin="10, 10"/>
+            <TextBlock Grid.Row="4" Text="Service is currently stoped." Name="ServiceInfoTB" FontSize="16" Foreground="White" Margin="10, 10" TextWrapping="Wrap"/>
         </Grid>
     </Grid>
 </Window>

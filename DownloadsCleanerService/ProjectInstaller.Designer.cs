@@ -34,12 +34,16 @@ namespace DownloadsCleanerService
             // 
             // downloadsCleanerServiceProcessInstaler
             // 
+            this.downloadsCleanerServiceProcessInstaler.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.downloadsCleanerServiceProcessInstaler.Password = null;
             this.downloadsCleanerServiceProcessInstaler.Username = null;
             // 
             // downloadsCleanerServiceInstaller
             // 
+            this.downloadsCleanerServiceInstaller.Description = "Service for downloads cleaner.";
+            this.downloadsCleanerServiceInstaller.DisplayName = "Downloads Cleaner Service";
             this.downloadsCleanerServiceInstaller.ServiceName = "DownloadsCleanerService";
+            this.downloadsCleanerServiceInstaller.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
             // 

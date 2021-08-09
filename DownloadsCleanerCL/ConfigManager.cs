@@ -50,7 +50,7 @@ namespace DownloadsCleanerCL
             OlderThan = int.Parse(valueCollection.Get("OlderThan"));
         }
 
-        public async Task SetSettingsAsync()
+        public Task SetSettingsAsync()
         {
             Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             configuration.AppSettings.Settings["ServiceMainSettings"].Value = MainSettings.ToString();
@@ -62,6 +62,46 @@ namespace DownloadsCleanerCL
             configuration.AppSettings.Settings["OlderThan"].Value = OlderThan.ToString();
             configuration.Save(ConfigurationSaveMode.Minimal);
             ConfigurationManager.RefreshSection(configuration.AppSettings.SectionInformation.Name);
+            return Task.CompletedTask;
+        }
+
+        public static void UpdateSchedule(int days)
+        {
+            Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            configuration.AppSettings.Settings["Schedule"].Value = DateTime.Now.AddDays(days).ToString();
+            //configuration.AppSettings.Settings["Schedule"].Value = DateTime.Now.AddMinutes(days).ToString();
+            configuration.Save(ConfigurationSaveMode.Minimal);
+            ConfigurationManager.RefreshSection(configuration.AppSettings.SectionInformation.Name);
+        }
+
+        public static void WriteServiceSettings(ServiceMainSettings serviceMainSettings, int mainSettingsArg, ServiceSettings serviceSettings, int serviceSettingsarg, string path)
+        {
+            Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            configuration.AppSettings.Settings["MainSettings"].Value = serviceMainSettings.ToString();
+            configuration.AppSettings.Settings["MainSettingsArg"].Value = mainSettingsArg.ToString();
+            configuration.AppSettings.Settings["Settings"].Value = serviceSettings.ToString();
+            configuration.AppSettings.Settings["SettingsArg"].Value = serviceSettingsarg.ToString();
+            configuration.AppSettings.Settings["Path"].Value = path.ToString();
+            configuration.Save(ConfigurationSaveMode.Minimal);
+            ConfigurationManager.RefreshSection(configuration.AppSettings.SectionInformation.Name);
+        }
+
+        public int MainSettingsArg { get; set; }
+
+        public int SettingsArg { get; set; }
+
+        public string Path { get; set; }
+
+        public static ConfigManager GetServiceSettings()
+        {
+            ConfigManager manager = new ConfigManager();
+            NameValueCollection valueCollection = ConfigurationManager.AppSettings;
+            manager.MainSettings = (ServiceMainSettings)Enum.Parse(typeof(ServiceMainSettings), valueCollection.Get("MainSettings"));
+            manager.ServiceSettings = (ServiceSettings)Enum.Parse(typeof(ServiceSettings), valueCollection.Get("Settings"));
+            manager.MainSettingsArg = int.Parse(valueCollection.Get("MainSettingsArg"));
+            manager.SettingsArg = int.Parse(valueCollection.Get("SettingsArg"));
+            manager.Path = valueCollection.Get("Path");
+            return manager;
         }
     }
 }
