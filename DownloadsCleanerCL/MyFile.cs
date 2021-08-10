@@ -12,7 +12,7 @@ using System.Windows;
 
 namespace DownloadsCleanerCL
 {
-    public class MyFile
+    public class MyFile : IEquatable<MyFile>
     {
         public ImageSource IconDisp { get; set; }
         public string Name { get; set; }
@@ -63,5 +63,20 @@ namespace DownloadsCleanerCL
 
             return size;
         }
+
+        public bool Equals(MyFile other)
+        {
+            if (other is null)
+                return false;
+
+            return this.Name == other.Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as MyFile);
+        }
+
+        public override int GetHashCode() => Name.GetHashCode();
     }
 }

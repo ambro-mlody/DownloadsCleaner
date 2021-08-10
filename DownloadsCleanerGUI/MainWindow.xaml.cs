@@ -41,19 +41,6 @@ namespace DownloadsCleanerGUI
             }
         }
 
-        private int filesCount;
-
-        public int FilesCount
-        {
-            get { return filesCount; }
-            set 
-            { 
-                filesCount = value;
-                OnPropertyChanged();
-            }
-        }
-
-
         private ObservableCollection<MyFile> files = new ObservableCollection<MyFile>();
         public ObservableCollection<MyFile> Files 
         { 
@@ -64,8 +51,7 @@ namespace DownloadsCleanerGUI
                 OnPropertyChanged();
             }
         }
-        private string path = DownloadsFolder.getPath();
-        private DirectoryInfo downloadsInfo;
+        private string path = DownloadsFolder.GetPath();
         private SortOrder order = SortOrder.Ascending;
 
         private ServiceController serviceController;
@@ -120,35 +106,62 @@ namespace DownloadsCleanerGUI
 
         public MainWindow()
         {
-            TotalSize = 0;
-            GetFiles();
             InitializeComponent();
+            Files = new ObservableCollection<MyFile>(DownloadsFolder.GetFiles(path));
+            TotalSize = DownloadsFolder.TotalSize(Files);
             GetSettings();
-            InitServiceController();
+            serviceController =  InitServiceController();
             UpdateStatus();
-            watcher = new FileSystemWatcher(path);
-
-            watcher.NotifyFilter = NotifyFilters.Attributes |
-                NotifyFilters.CreationTime |
-                NotifyFilters.FileName |
-                NotifyFilters.LastAccess |
-                NotifyFilters.LastWrite |
-                NotifyFilters.Size |
-                NotifyFilters.Security;
-
+            watcher = WatcherController.InitWatcher(path);
             watcher.Changed += Watcher_Changed;
-
             watcher.Created += Watcher_Created;
-
             watcher.Deleted += Watcher_Deleted;
-
             watcher.Renamed += Watcher_Renamed;
-
-            watcher.EnableRaisingEvents = true;
         }
 
-        private void InitServiceController()
+        private void Watcher_Renamed(object sender, RenamedEventArgs e)
         {
+            Application.Current.Dispatcher.Invoke(delegate
+            {
+                Files = new ObservableCollection<MyFile>(WatcherController.FileListRenamed(e, Files));
+                TotalSize = DownloadsFolder.TotalSize(Files);
+            });
+        }
+
+        private void Watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            if (e.ChangeType != WatcherChangeTypes.Changed)
+                return;
+            Application.Current.Dispatcher.Invoke(delegate
+            {
+                Files = new ObservableCollection<MyFile>(WatcherController.FileListChanged(e, Files));
+                TotalSize = DownloadsFolder.TotalSize(Files);
+            });
+        }
+
+        private void Watcher_Deleted(object sender, FileSystemEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(delegate
+            {
+                Files = new ObservableCollection<MyFile>(WatcherController.FileListDeleted(e, Files));
+                TotalSize = DownloadsFolder.TotalSize(Files);
+            });
+
+        }
+
+        private void Watcher_Created(object sender, FileSystemEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(delegate
+            {
+                Files = new ObservableCollection<MyFile>(WatcherController.FileListCreated(e, Files));
+                TotalSize = DownloadsFolder.TotalSize(Files);
+            });
+
+        }
+
+        private ServiceController InitServiceController()
+        {
+            ServiceController serviceController;
             ServiceController[] serviceControllers;
             serviceControllers = ServiceController.GetServices();
             foreach (var sc in serviceControllers)
@@ -156,30 +169,11 @@ namespace DownloadsCleanerGUI
                 if(sc.ServiceName == "DownloadsCleanerService")
                 {
                     serviceController = new ServiceController("DownloadsCleanerService");
-                    return;
+                    return serviceController;
                 }
             }
-        }
 
-        private void GetFiles()
-        {
-            downloadsInfo = new DirectoryInfo(path);
-            var files1 = downloadsInfo.GetFiles();
-            foreach (var file in files1)
-            {
-                Files.Add(new MyFile(file));
-            }
-            var dirs = downloadsInfo.GetDirectories();
-            foreach (var dir in dirs)
-            {
-                Files.Add(new MyFile(dir));
-            }
-            foreach (var file in Files)
-            {
-                TotalSize += file.Size;
-            }
-            TotalSize /= 1024.0;
-            FilesCount = Files.Count;
+            return null;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -248,95 +242,27 @@ namespace DownloadsCleanerGUI
         private async void DeleteFileMI_Click(object sender, RoutedEventArgs e)
         {
             var selected = FileListView.SelectedItems.Cast<MyFile>().ToArray();
-            double sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(selected);
-            foreach (var item in selected)
-            {
-                Files.Remove(item);
-            }
-            TotalSize -= sizeDeleted / 1024.0;
+            Files = new ObservableCollection<MyFile>(await DeleteFromList.RemoveFromCorrespondingListAsync(Files, selected));
+            TotalSize = DownloadsFolder.TotalSize(Files);
         }
 
         private async void AdvancedDelete1Button_Click(object sender, RoutedEventArgs e)
         {
             
-            if (OldestRB.IsChecked.HasValue)
+            if (OldestRB.IsChecked.Value)
             {
-                if (OldestRB.IsChecked.Value)
-                {
-                    var f = await FileSorter.SortByDateAsync(files, SortOrder.Ascending);
-                    RemoveFromList(f);
-                    return;
-                }
+                var f = await FileSorter.SortByDateAsync(files, SortOrder.Ascending);
+                Files = new ObservableCollection<MyFile>(await DeleteFromList.RemoveFromListAsync(f, FilesNumberSB.Value.Value));
+                TotalSize = DownloadsFolder.TotalSize(Files);
+                return;
             }
 
-            if (BiggestRB.IsChecked.HasValue)
+            if (BiggestRB.IsChecked.Value)
             {
-                if (BiggestRB.IsChecked.Value)
-                {
-                    var f = await FileSorter.SortBySizeAsync(files, SortOrder.Descending);
-                    RemoveFromList(f);
-                }
+                var f = await FileSorter.SortBySizeAsync(files, SortOrder.Descending);
+                Files = new ObservableCollection<MyFile>(await DeleteFromList.RemoveFromListAsync(f, FilesNumberSB.Value.Value));
+                TotalSize = DownloadsFolder.TotalSize(Files);
             }
-        }
-
-        private async void RemoveFromList(IEnumerable<MyFile> f)
-        {
-            double sizeDeleted;
-            List<MyFile> toDelete = new List<MyFile>();
-            for (int i = 0; i < FilesNumberSB.Value.Value; i++)
-            {
-                if(i < f.Count())
-                {
-                    toDelete.Add(f.ElementAt(i));
-                    Files.Remove(f.ElementAt(i));
-                }
-                else
-                {
-                    break;
-                }
-            }
-            sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
-            TotalSize -= sizeDeleted / 1024.0;
-        }
-
-        private async void RemoveFromList(IEnumerable<MyFile> f, DateTime date)
-        {
-            double sizeDeleted;
-            List<MyFile> toDelete = new List<MyFile>();
-            foreach (var file in f)
-            {
-                if (file.DateModified < date)
-                {
-                    toDelete.Add(file);
-                    Files.Remove(file);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
-            TotalSize -= sizeDeleted / 1024.0;
-        }
-
-        private async void RemoveFromList(IEnumerable<MyFile> f, double size)
-        {
-            double sizeDeleted;
-            List<MyFile> toDelete = new List<MyFile>();
-            foreach (var file in f)
-            {
-                if (file.Size > size)
-                {
-                    toDelete.Add(file);
-                    Files.Remove(file);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            sizeDeleted = await FilesDeleter.DelteFilesAndDirectoriesAsync(toDelete);
-            TotalSize -= sizeDeleted / 1024.0;
         }
 
         private void DeleteDP_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -346,27 +272,21 @@ namespace DownloadsCleanerGUI
 
         private async void AdvancedDelete2Button_Click(object sender, RoutedEventArgs e)
         {
-            if(OlderThanRB.IsChecked.HasValue)
+            if (OlderThanRB.IsChecked.Value)
             {
-                if(OlderThanRB.IsChecked.Value)
+                if (DeleteDP.SelectedDate.HasValue)
                 {
-                    if(DeleteDP.SelectedDate.HasValue)
-                    {
-                        var f = await FileSorter.SortByDateAsync(files, SortOrder.Ascending);
-                        RemoveFromList(f, DeleteDP.SelectedDate.Value);
-                        return;
-                    }
+                    var f = await FileSorter.SortBySizeAsync(files, SortOrder.Descending);
+                    Files = new ObservableCollection<MyFile>(await DeleteFromList.RemoveFromListAsync(f, DeleteDP.SelectedDate.Value));
+                    TotalSize = DownloadsFolder.TotalSize(Files);
+                    return;
                 }
             }
 
-            if (BiggerThanRB.IsChecked.HasValue)
+            if (BiggerThanRB.IsChecked.Value)
             {
-                if (BiggerThanRB.IsChecked.Value)
-                {
-                    var f = await FileSorter.SortBySizeAsync(files, SortOrder.Descending);
-                    RemoveFromList(f, BiggerThanSB.Value.Value);
-                    return;
-                }
+                var f = await FileSorter.SortBySizeAsync(files, SortOrder.Descending);
+                Files = new ObservableCollection<MyFile>(await DeleteFromList.RemoveFromListAsync(f, BiggerThanSB.Value.Value));
             }
         }
 
@@ -527,82 +447,6 @@ namespace DownloadsCleanerGUI
                 serviceController.WaitForStatus(ServiceControllerStatus.Stopped);
             }
             UpdateStatus();
-        }
-
-        private void Watcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            if (e.ChangeType != WatcherChangeTypes.Changed)
-                return;
-            Application.Current.Dispatcher.Invoke(delegate
-            {
-                var files = Files.Where(f => f.Name == e.Name);
-                foreach (var file in files.ToList())
-                {
-                    Files.Remove(file);
-                    TotalSize -= file.Size / 1024.0;
-                    if (File.Exists(e.FullPath))
-                    {
-                        MyFile f = new MyFile(new FileInfo(e.FullPath));
-                        Files.Add(f);
-                    }
-                    else if (Directory.Exists(e.FullPath))
-                    {
-                        MyFile f = new MyFile(new DirectoryInfo(e.FullPath));
-                        Files.Add(f);
-                    }
-                    TotalSize += file.Size / 1024.0;
-                }
-            });
-        }
-
-        private void Watcher_Renamed(object sender, RenamedEventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke(delegate
-            {
-                var files = Files.Where(f => f.Name == e.OldName);
-                foreach (var file in files.ToList())
-                {
-                    Files.Remove(file);
-                    file.Name = e.Name;
-                    Files.Add(file);
-                }
-            });
-            
-        }
-
-        private void Watcher_Deleted(object sender, FileSystemEventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke(delegate
-            {
-                var files = Files.Where(f => f.Name == e.Name);
-                foreach (var file in files.ToList())
-                {
-                    Files.Remove(file);
-                    TotalSize -= file.Size / 1024.0;
-                }
-            });
-            
-        }
-
-        private void Watcher_Created(object sender, FileSystemEventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke(delegate
-            {
-                MyFile file;
-                if (File.Exists(e.FullPath))
-                {
-                    file = new MyFile(new FileInfo(e.FullPath));
-                    Files.Add(file);
-                    TotalSize += file.Size / 1024.0;
-                }
-                else if (Directory.Exists(e.FullPath))
-                {
-                    file = new MyFile(new DirectoryInfo(e.FullPath));
-                    Files.Add(file);
-                    TotalSize += file.Size / 1024.0;
-                }
-            });
-            
         }
     }
 }

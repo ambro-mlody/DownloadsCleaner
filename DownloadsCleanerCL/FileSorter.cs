@@ -20,10 +20,10 @@ namespace DownloadsCleanerCL
             switch (order)
             {
                 case SortOrder.Ascending:
-                    files = new ObservableCollection<MyFile>(files.OrderBy(f => f.Name));
+                    files = files.OrderBy(f => f.Name);
                     break;
                 case SortOrder.Descending:
-                    files = new ObservableCollection<MyFile>(files.OrderByDescending(f => f.Name));
+                    files = files.OrderByDescending(f => f.Name);
                     break;
                 default:
                     break;
@@ -36,10 +36,10 @@ namespace DownloadsCleanerCL
             switch (order)
             {
                 case SortOrder.Ascending:
-                    files = new ObservableCollection<MyFile>(files.OrderBy(f => f.Size));
+                    files = files.OrderBy(f => f.Size);
                     break;
                 case SortOrder.Descending:
-                    files = new ObservableCollection<MyFile>(files.OrderByDescending(f => f.Size));
+                    files = files.OrderByDescending(f => f.Size);
                     break;
                 default:
                     break;
@@ -52,10 +52,10 @@ namespace DownloadsCleanerCL
             switch (order)
             {
                 case SortOrder.Ascending:
-                    files = new ObservableCollection<MyFile>(files.OrderBy(f => f.DateModified));
+                    files = files.OrderBy(f => f.DateModified);
                     break;
                 case SortOrder.Descending:
-                    files = new ObservableCollection<MyFile>(files.OrderByDescending(f => f.DateModified));
+                    files = files.OrderByDescending(f => f.DateModified);
                     break;
                 default:
                     break;

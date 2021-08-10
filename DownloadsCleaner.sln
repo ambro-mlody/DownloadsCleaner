@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadsCleanerService", "
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DownloadsCleanerInstaller", "DownloadsCleanerInstaller\DownloadsCleanerInstaller.vdproj", "{14E1FE5D-5D5A-4FC9-BB40-038A58918044}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadsCleanerTestsLibrary", "DownloadsCleanerTestsLibrary\DownloadsCleanerTestsLibrary.csproj", "{AE352B4A-D2BD-47FC-81B4-4322AEAF5672}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{AAD9A134-B6CD-45C8-92FB-E85385179164}.Release|Any CPU.Build.0 = Release|Any CPU
 		{14E1FE5D-5D5A-4FC9-BB40-038A58918044}.Debug|Any CPU.ActiveCfg = Debug
 		{14E1FE5D-5D5A-4FC9-BB40-038A58918044}.Release|Any CPU.ActiveCfg = Release
+		{AE352B4A-D2BD-47FC-81B4-4322AEAF5672}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE352B4A-D2BD-47FC-81B4-4322AEAF5672}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE352B4A-D2BD-47FC-81B4-4322AEAF5672}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE352B4A-D2BD-47FC-81B4-4322AEAF5672}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

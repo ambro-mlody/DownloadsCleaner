@@ -18,11 +18,17 @@ namespace DownloadsCleanerCL
                 sizeDeleted += file.Size;
                 if (file.File)
                 {
-                    File.Delete(file.Path);
+                    if(File.Exists(file.Path))
+                    {
+                        File.Delete(file.Path);
+                    }
                 }
                 else
                 {
-                    Directory.Delete(file.Path, true);
+                    if(Directory.Exists(file.Path))
+                    {
+                        Directory.Delete(file.Path, true);
+                    }
                 }
             }
             return Task.FromResult(sizeDeleted);

@@ -293,7 +293,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Total Size: " FontSize="16" x:Name="TotalSizeTB"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalSize, ElementName=mainWindow, StringFormat=0.## MB}" FontSize="16" x:Name="TotalSizeTB1" HorizontalAlignment="Right" Margin="0,0,5,0"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Files.Count, ElementName=mainWindow, StringFormat=0.## MB}" FontSize="16" x:Name="TotalSizeTB1" HorizontalAlignment="Right" Margin="0,0,5,0"/>
             <Grid Margin="0, 20, 0, 0"  Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />

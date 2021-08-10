@@ -21,7 +21,7 @@ namespace DownloadsCleanerCL
             // 0x3 - folder id
             // 0x100 - large icon
             SHGetStockIconInfo(0x3, 0x100, ref info);
-            var icon = (Icon)Icon.FromHandle(info.hIcon).Clone();
+            Icon icon = (Icon)Icon.FromHandle(info.hIcon).Clone();
             DestroyIcon(info.hIcon);
             return Imaging.CreateBitmapSourceFromHIcon(icon.Handle, new Int32Rect(0, 0, icon.Width, icon.Height), BitmapSizeOptions.FromEmptyOptions());
         }
